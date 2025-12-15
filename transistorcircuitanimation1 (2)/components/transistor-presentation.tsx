@@ -288,9 +288,9 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
   ]
 
   return (
-    <div className="h-screen w-screen bg-[#0a0a12] flex items-center justify-center overflow-hidden relative">
+    <div className="h-screen w-screen bg-[#0a0a12] flex items-center justify-center overflow-hidden relative" role="presentation">
       {/* Background Effects */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" aria-hidden="true">
         <svg className="absolute inset-0 w-full h-full opacity-10">
           <defs>
             <pattern id="intro-grid" width="50" height="50" patternUnits="userSpaceOnUse">
@@ -470,16 +470,18 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
             )}
           >
             {/* Switch - visible in idle and pressed phases */}
-            <div
+            <button
               className={cn(
                 "relative rounded-3xl cursor-pointer transition-all duration-500 leading-7 font-normal w-[182px] h-[223px]",
                 "bg-gradient-to-b from-zinc-800 to-zinc-900",
                 "border-4 border-zinc-700 shadow-2xl",
-                phase === "idle" && "hover:border-cyan-500/50 hover:shadow-cyan-500/20",
+                phase === "idle" && "hover:border-cyan-500/50 hover:shadow-cyan-500/20 focus:border-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-400",
                 isPressed && "border-cyan-400 shadow-cyan-500/50",
                 (phase === "transforming" || phase === "moving" || phase === "merging") && "opacity-0 scale-0",
               )}
               onClick={handleClick}
+              aria-label="Turn on the circuit - Start presentation"
+              disabled={phase !== "idle"}
             >
               <div className="absolute inset-2 rounded-2xl bg-gradient-to-b from-zinc-950 to-black opacity-80" />
 
@@ -506,7 +508,7 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
               <span className="absolute top-2 left-1/2 -translate-x-1/2 text-xs font-bold text-zinc-500">OFF</span>
               <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-bold text-cyan-400">ON</span>
-            </div>
+            </button>
 
             {/* Battery - appears during transforming phase */}
             <div
@@ -782,14 +784,16 @@ function OutroScreen({ onRestart }: { onRestart: () => void }) {
 
           <div className="relative z-20">
             <div className="relative flex flex-col items-center justify-center">
-              <div
+              <button
                 className={cn(
                   "relative w-48 h-72 rounded-3xl cursor-pointer transition-all duration-500",
                   "bg-gradient-to-b from-zinc-800 to-zinc-900",
                   "border-4 border-zinc-700 shadow-2xl hover:border-red-500/50 hover:shadow-red-500/20",
+                  "focus:border-red-500/50 focus:outline-none focus:ring-2 focus:ring-red-400",
                   isPressed && "scale-95",
                 )}
                 onClick={handleClick}
+                aria-label="Turn off the circuit - Restart presentation"
               >
                 <div className="absolute inset-2 rounded-2xl bg-gradient-to-b from-zinc-900 to-black opacity-80" />
                 <div className="absolute inset-x-6 top-8 bottom-8 rounded-full bg-gradient-to-b from-zinc-950 to-zinc-800 border border-zinc-700">
@@ -814,7 +818,7 @@ function OutroScreen({ onRestart }: { onRestart: () => void }) {
                 </div>
                 <span className="absolute top-2 left-1/2 -translate-x-1/2 text-xs font-bold text-zinc-500">OFF</span>
                 <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-bold text-cyan-400">ON</span>
-              </div>
+              </button>
               <div className="mt-6 text-2xl font-bold tracking-wider text-white/80">
                 TURN <span className="text-red-400">OFF</span>
               </div>
@@ -870,6 +874,39 @@ export function TransistorPresentation() {
     setIsPlaying(!isPlaying)
   }
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (showIntro || showOutro) return
+      
+      switch (e.key) {
+        case "ArrowLeft":
+          prevScene()
+          break
+        case "ArrowRight":
+          nextScene()
+          break
+        case " ":
+        case "Spacebar":
+          e.preventDefault()
+          togglePlay()
+          break
+        case "Home":
+          setCurrentScene(0)
+          break
+        case "End":
+          setShowOutro(true)
+          break
+        case "Escape":
+          setIsPlaying(false)
+          break
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [currentScene, showIntro, showOutro, nextScene, prevScene])
+
   useEffect(() => {
     if (isPlaying) {
       const timer = setTimeout(() => {
@@ -892,9 +929,9 @@ export function TransistorPresentation() {
   return (
     <div className="h-screen w-screen bg-[#0a0a12] text-white overflow-hidden flex items-center justify-center">
       {/* 16:9 Container */}
-      <div className="w-full h-full max-h-screen flex flex-col" style={{ maxWidth: "calc(100vh * 16 / 9)" }}>
+      <div className="w-full h-full max-h-screen flex flex-col" style={{ maxWidth: "calc(100vh * 16 / 9)" }} role="main" aria-label="Transistor circuit presentation">
         {/* Main Content Area */}
-        <div className="flex-1 flex min-h-0">
+        <div className="flex-1 flex min-h-0 flex-col md:flex-row">
           {/* Left: Circuit Diagram Area */}
           <div className="flex-1 flex flex-col min-w-0">
             {/* Circuit Diagram */}
@@ -904,7 +941,7 @@ export function TransistorPresentation() {
           </div>
 
           {/* Right: Info Panel - reduced width from w-80 to w-72 */}
-          <div className="w-72 border-l border-white/10 bg-black/40 flex flex-col">
+          <div className="w-full md:w-72 border-t md:border-t-0 md:border-l border-white/10 bg-black/40 flex flex-col max-h-[40vh] md:max-h-full" role="complementary" aria-label="Slide information">
             {/* Header */}
             <div className="p-2 border-b border-white/10">
               <div className="flex items-center justify-between mb-1">
@@ -978,6 +1015,7 @@ export function TransistorPresentation() {
               size="sm"
               onClick={prevScene}
               disabled={currentScene === 0}
+              aria-label="Previous slide"
               className={cn(
                 "h-8 px-3 border-2 font-semibold transition-all text-xs",
                 currentScene === 0
@@ -994,6 +1032,7 @@ export function TransistorPresentation() {
               variant="outline"
               size="sm"
               onClick={togglePlay}
+              aria-label={isPlaying ? "Pause presentation" : "Play presentation"}
               className="h-8 w-8 border-2 border-white/30 text-white bg-white/10 hover:bg-white/20 hover:border-white/50"
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
@@ -1005,6 +1044,7 @@ export function TransistorPresentation() {
               size="sm"
               onClick={nextScene}
               disabled={currentScene === scenes.length - 1}
+              aria-label="Next slide"
               className={cn(
                 "h-8 px-3 border-2 font-semibold transition-all text-xs",
                 currentScene === scenes.length - 1
@@ -1021,6 +1061,7 @@ export function TransistorPresentation() {
               variant="ghost"
               size="sm"
               onClick={() => setCurrentScene(0)}
+              aria-label="Reset to first slide"
               className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/10"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -1055,6 +1096,7 @@ export function TransistorPresentation() {
             variant="outline"
             size="sm"
             onClick={() => setShowOutro(true)}
+            aria-label="End presentation"
             className="h-8 px-3 border border-white/20 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/40"
           >
             End
