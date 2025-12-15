@@ -4,14 +4,43 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const geistSans = Geist({ 
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+  display: "swap"
+})
+
+const geistMono = Geist_Mono({ 
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap"
+})
 
 export const metadata: Metadata = {
-  title: "NPN Transistor Circuit Operation",
+  title: "NPN Transistor Circuit Operation | Interactive Electronics Tutorial",
   description:
-    "Interactive animated presentation showing the full operation of an electronic circuit based on a bipolar junction transistor (NPN)",
+    "Interactive animated presentation showing the full operation of an electronic circuit based on a bipolar junction transistor (NPN). Learn about transistor switching, current amplification, and circuit analysis.",
+  keywords: ["NPN transistor", "electronics", "circuit analysis", "transistor operation", "semiconductor", "current amplification", "electronic switch"],
+  authors: [{ name: "Yousef Khames" }],
+  creator: "Electronics Education Team",
+  publisher: "Electronics Education",
   generator: "v0.app",
+  openGraph: {
+    title: "NPN Transistor Circuit Operation",
+    description: "Interactive animated presentation for understanding NPN transistor circuits",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NPN Transistor Circuit Operation",
+    description: "Interactive animated presentation for understanding NPN transistor circuits",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
   icons: {
     icon: [
       {
@@ -37,8 +66,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="font-sans antialiased">
         {children}
         <Analytics />
       </body>

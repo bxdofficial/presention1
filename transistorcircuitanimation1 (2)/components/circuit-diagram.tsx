@@ -413,7 +413,9 @@ export function CircuitDiagram({ currentScene }: CircuitDiagramProps) {
       </svg>
 
       {/* Main Circuit SVG */}
-      <svg viewBox="0 0 750 520" className="w-full h-full relative z-10" preserveAspectRatio="xMidYMid meet">
+      <svg viewBox="0 0 750 520" className="w-full h-full relative z-10" preserveAspectRatio="xMidYMid meet" role="img" aria-label="NPN Transistor Circuit Diagram">
+        <title>NPN Transistor Circuit Diagram</title>
+        <desc>Interactive circuit diagram showing battery, resistors, LED, and NPN transistor with current flow animation</desc>
         <defs>
           <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="4" result="coloredBlur" />
